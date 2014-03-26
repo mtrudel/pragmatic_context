@@ -140,7 +140,7 @@ list of an object's fields is not known at class load time. In these cases, it's
 possible to defer contextualization to a custom `Contextualizer` class
 configured like so:
 
-   class Person
+    class Person
       include Mongoid::Document
       include PragmaticContext::Contextualizable
 
