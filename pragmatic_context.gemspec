@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = PragmaticContext::VERSION
   spec.authors       = ["Mat Trudel"]
   spec.email         = ["mat@geeky.net"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.summary       = %q{JSON-LD from a JSON perspective}
+  spec.description   = %q{A library to declaratively add JSON-LD support to your Mongoid models}
+  spec.homepage      = "http://github.com/mtrudel/pragmatic_context"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
