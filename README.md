@@ -76,7 +76,7 @@ creator Manu Sporny says it best:
 In terms of my personal approach to developing PragmanticContext, I'm
 consciously not considering RDF as entering into the equation at all. With
 PragmaticContext, I'm playing the role of an API developer already steeped in
-JSON, who wants to make their data more expressive without having to slow down
+JSON who wants to make their data more expressive without having to slow down
 or learn a new stack. While I personally understand RDF's role and potential,
 I'm willfully ignoring it with the goal of producing a library relevant to JSON
 API developers. My thesis is that if JSON-LD is to be relevant to existing JSON
@@ -105,7 +105,7 @@ it like so:
 
     class Person
       include Mongoid::Document
-      include Contextualizable
+      include PragmaticContext::Contextualizable
 
       field :first_name
       field :last_name
@@ -142,7 +142,7 @@ configured like so:
 
    class Person
       include Mongoid::Document
-      include Contextualizable
+      include PragmaticContext::Contextualizable
 
       field :first_name
       field :last_name
