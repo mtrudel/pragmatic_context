@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Mat Trudel"]
   spec.email         = ["mat@geeky.net"]
   spec.summary       = %q{JSON-LD from a JSON perspective}
-  spec.description   = %q{A library to declaratively add JSON-LD support to your Mongoid models}
+  spec.description   = %q{A library to declaratively add JSON-LD support to your ActiveModel models}
   spec.homepage      = "http://github.com/mtrudel/pragmatic_context"
   spec.license       = "MIT"
 
