@@ -30,12 +30,11 @@ module PragmaticContext
     end
 
     def context
-      property_list = self.class.contextualizer.properties_for_terms(terms)
-      Hash[property_list.map {|k, v| [k, v.to_definition_hash] }]
+      self.class.contextualizer.definitions_for_terms(terms)
     end
 
     def uncontextualized_terms
-      terms_with_context = self.class.contextualizer.properties_for_terms(terms).keys
+      terms_with_context = self.class.contextualizer.definitions_for_terms(terms).keys
       terms - terms_with_context
     end
 

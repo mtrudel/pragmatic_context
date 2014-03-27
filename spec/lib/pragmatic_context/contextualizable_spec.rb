@@ -56,10 +56,8 @@ describe PragmaticContext::Contextualizable do
 
     describe 'context' do
       it 'should properly marshall together term definitions with the appropriate terms' do
-        property = double('property')
-        property.stub(:to_definition_hash) { { "@id" => "http://bacon.yum" } }
-        @contextualizer.stub(:properties_for_terms) do |properties|
-          { 'bacon' => property }.slice(*properties)
+        @contextualizer.stub(:definitions_for_terms) do |terms|
+          { 'bacon' => { "@id" => "http://bacon.yum" } }.slice(*terms)
         end
         subject.bacon = 'crispy'
         subject.context['bacon']['@id'].should == 'http://bacon.yum'
@@ -68,7 +66,7 @@ describe PragmaticContext::Contextualizable do
 
     describe 'uncontextualized_terms' do
       it 'should include terms which are not contextualized by the configured Contextualizer' do
-        @contextualizer.stub(:properties_for_terms) { {} }
+        @contextualizer.stub(:definitions_for_terms) { {} }
         subject.uncontextualized_terms.should == ['bacon']
       end
     end

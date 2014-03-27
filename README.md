@@ -144,16 +144,16 @@ configured like so:
       include Mongoid::Document
       include PragmaticContext::Contextualizable
 
-      field :first_name
-      field :last_name
-      field :email
+      #
+      # Machinery for defining fields, either static or dynamic
+      #
 
       contextualize_with CustomContextualizer
     end
 
     class CustomContextualizer
-      def properties_for_terms(terms)
-        # Returns a hash of terms => TermDefinition objects (or duck-typed equivalents)
+      def definitions_for_terms(terms)
+        # Returns a hash of terms => term definitions
       end
     end
 

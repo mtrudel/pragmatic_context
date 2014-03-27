@@ -1,17 +1,24 @@
 require 'active_support'
 require 'active_support/hash_with_indifferent_access'
 
-require 'pragmatic_context/term_definition'
-
 module PragmaticContext
   class DefaultContextualizer
     def add_term(term, params)
       @properties ||= ActiveSupport::HashWithIndifferentAccess.new
-      @properties[term] = TermDefinition.new(params)
+      @properties[term] = ActiveSupport::HashWithIndifferentAccess.new params
     end
 
-    def properties_for_terms(terms)
-      @properties.slice(*terms)
+    def definitions_for_terms(terms)
+      Hash[@properties.slice(*terms).map { |term, params| [term, definition_from_params(params)] }]
+    end
+
+    private
+
+    def definition_from_params(params)
+      result = {}
+      result['@id'] = params[:as] if params[:as]
+      result['@type'] = params[:type] if params[:type]
+      result
     end
   end
 end
