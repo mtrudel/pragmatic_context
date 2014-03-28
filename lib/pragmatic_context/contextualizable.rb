@@ -29,6 +29,10 @@ module PragmaticContext
       end
     end
 
+    def as_jsonld(opts = nil)
+      as_json(opts).merge("@context" => context)
+    end
+
     def context
       self.class.contextualizer.definitions_for_terms(terms)
     end

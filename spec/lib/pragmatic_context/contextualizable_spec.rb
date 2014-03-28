@@ -1,6 +1,8 @@
 require 'pragmatic_context'
+require 'active_model'
 
 class Stub
+  include ActiveModel::Serializers::JSON
   include PragmaticContext::Contextualizable
 
   attr_accessor :bacon
@@ -52,6 +54,16 @@ describe PragmaticContext::Contextualizable do
       contextualizer_class = double('contextualizer class')
       contextualizer_class.stub(:new) { @contextualizer }
       subject.class.contextualize_with contextualizer_class
+    end
+
+    describe 'as_jsonld' do
+      it 'should respond with the underlying as_json result plus the context' do
+        @contextualizer.stub(:definitions_for_terms) do |terms|
+          { 'bacon' => { "@id" => "http://bacon.yum" } }.slice(*terms)
+        end
+        subject.bacon = 'crispy'
+        subject.as_jsonld.should == subject.as_json.merge("@context" => subject.context)
+      end
     end
 
     describe 'context' do
