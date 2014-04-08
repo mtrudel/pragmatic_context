@@ -3,8 +3,6 @@ require 'pragmatic_context/default_contextualizer'
 module PragmaticContext
   module Contextualizable
     def Contextualizable.included(base)
-      base.class_eval do
-      end
       base.extend ClassMethods
     end
 
