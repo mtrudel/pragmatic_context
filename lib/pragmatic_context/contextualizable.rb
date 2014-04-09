@@ -62,7 +62,7 @@ module PragmaticContext
     private
 
     def terms
-      attributes.keys - ['_id', '_type']
+      as_json.keys
     end
   end
 end
