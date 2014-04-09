@@ -65,6 +65,26 @@ describe PragmaticContext::Contextualizable do
         subject.ham = 'honey'
         subject.as_jsonld.should == { "bacon" => "crispy", "@context" => subject.context }
       end
+
+      it 'should recurse into Contextualizable subobjects' do
+        @contextualizer.stub(:definitions_for_terms) do |terms|
+          { 'bacon' => { "@id" => "http://bacon.yum" },
+            'ham' => { "@id" => "http://ham.yum" } }.slice(*terms)
+        end
+        subject.bacon = 'crispy'
+        subject.ham = Stub.new
+        subject.ham.bacon = 'nested bacon'
+        subject.ham.ham = 'nested ham'
+        subject.as_jsonld.should == {
+          "@context" => subject.context,
+          "bacon" => "crispy",
+          "ham" => {
+            "@context" => subject.ham.context,
+            "bacon" => "nested bacon",
+            "ham" => "nested ham"
+          }
+        }
+      end
     end
 
     describe 'context' do

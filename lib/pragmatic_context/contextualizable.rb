@@ -28,8 +28,22 @@ module PragmaticContext
     end
 
     def as_jsonld(opts = nil)
+      # We iterate over terms_with_context because we want to look at our own
+      # fields (and not the fields in 'as_json') to case on their class. In the
+      # case where we want to serialize directly, we rely on the field value as
+      # sourced from as_json
       terms_with_context = self.class.contextualizer.definitions_for_terms(terms).keys
-      as_json(opts).slice(*terms_with_context).merge("@context" => context)
+      json_results = as_json(opts).slice(*terms_with_context)
+      results = {}
+      terms_with_context.each do |term|
+        case attributes[term]
+        when Contextualizable
+          results[term] = attributes[term].as_jsonld
+        else
+          results[term] = json_results[term]
+        end
+      end
+      results.merge("@context" => context)
     end
 
     def context
