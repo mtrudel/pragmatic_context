@@ -85,6 +85,20 @@ describe PragmaticContext::Contextualizable do
           }
         }
       end
+
+      it 'should compact sub-hashes into namespaced properties on self' do
+        @contextualizer.stub(:definitions_for_terms) do |terms|
+          { 'bacon' => { "@id" => "http://bacon.yum" },
+            'ham' => { "@id" => "http://ham.yum" } }.slice(*terms)
+        end
+        subject.bacon = 'crispy'
+        subject.ham = { 'bacon' => 'nested bacon' }
+        subject.as_jsonld.should == {
+          "@context" => subject.context,
+          "bacon" => "crispy",
+          "ham:bacon" => "nested bacon"
+        }
+      end
     end
 
     describe 'context' do

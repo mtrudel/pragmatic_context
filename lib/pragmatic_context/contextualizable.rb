@@ -39,6 +39,10 @@ module PragmaticContext
         case attributes[term]
         when Contextualizable
           results[term] = attributes[term].as_jsonld
+        when Hash
+          attributes[term].each do |key, value|
+            results["#{term}:#{key}"] = value
+          end
         else
           results[term] = json_results[term]
         end
