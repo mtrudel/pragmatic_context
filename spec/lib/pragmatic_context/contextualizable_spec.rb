@@ -57,12 +57,13 @@ describe PragmaticContext::Contextualizable do
     end
 
     describe 'as_jsonld' do
-      it 'should respond with the underlying as_json result plus the context' do
+      it 'should respond with only contextualized terms plus their context' do
         @contextualizer.stub(:definitions_for_terms) do |terms|
           { 'bacon' => { "@id" => "http://bacon.yum" } }.slice(*terms)
         end
         subject.bacon = 'crispy'
-        subject.as_jsonld.should == subject.as_json.merge("@context" => subject.context)
+        subject.ham = 'honey'
+        subject.as_jsonld.should == { "bacon" => "crispy", "@context" => subject.context }
       end
     end
 
