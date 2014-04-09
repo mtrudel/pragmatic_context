@@ -5,10 +5,10 @@ class Stub
   include ActiveModel::Serializers::JSON
   include PragmaticContext::Contextualizable
 
-  attr_accessor :bacon
+  attr_accessor :bacon, :ham
 
   def attributes
-    { "bacon" => bacon }
+    { "bacon" => bacon, "ham" => ham }
   end
 end
 
@@ -72,14 +72,16 @@ describe PragmaticContext::Contextualizable do
           { 'bacon' => { "@id" => "http://bacon.yum" } }.slice(*terms)
         end
         subject.bacon = 'crispy'
+        subject.ham = 'honey'
         subject.context['bacon']['@id'].should == 'http://bacon.yum'
+        subject.context['ham'].should == nil
       end
     end
 
     describe 'uncontextualized_terms' do
       it 'should include terms which are not contextualized by the configured Contextualizer' do
         @contextualizer.stub(:definitions_for_terms) { {} }
-        subject.uncontextualized_terms.should == ['bacon']
+        subject.uncontextualized_terms.should == ['bacon', 'ham']
       end
     end
   end
