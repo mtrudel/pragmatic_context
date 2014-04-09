@@ -9,7 +9,7 @@ get your models talking JSON-LD.
 I'm glad you asked. [JSON-LD](http://json-ld.org/) is a lightweight JSON format
 for expressing data within a context (also known as 'Linked Data'). Essentially
 what this means is that it lets you say that the thing your data model calls
-a 'last_name' is an embodiment of the abstract idea of a [Family
+a 'last_name' (and what someone else may call 'family_name', or 'surname', or 'apellido') are all embodiments of the same abstract idea of a [Family
 Name](http://xmlns.com/foaf/spec/#term_familyName). JSON-LD is similar in spirit
 (though [vastly different in
 execution](http://manu.sporny.org/2014/json-ld-origins-2/)) to
