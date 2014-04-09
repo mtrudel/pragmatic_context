@@ -36,11 +36,13 @@ module PragmaticContext
       json_results = as_json(opts).slice(*terms_with_context)
       results = {}
       terms_with_context.each do |term|
-        case attributes[term]
-        when Contextualizable
-          results[term] = attributes[term].as_jsonld
-        when Hash
-          attributes[term].each do |key, value|
+        # Don't use idiomatic case here since Mongoid relations return proxies
+        # that fail the Contextualizable test
+        value = self.send(term)
+        if (value.is_a? Contextualizable)
+          results[term] = self.send(term).as_jsonld
+        elsif (value.is_a? Hash)
+          self.send(term).each do |key, value|
             results["#{term}:#{key}"] = value
           end
         else
