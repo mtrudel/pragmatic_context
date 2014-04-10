@@ -3,8 +3,6 @@ require 'pragmatic_context/default_contextualizer'
 module PragmaticContext
   module Contextualizable
     def Contextualizable.included(base)
-      base.class_eval do
-      end
       base.extend ClassMethods
     end
 
@@ -30,7 +28,28 @@ module PragmaticContext
     end
 
     def as_jsonld(opts = nil)
-      as_json(opts).merge("@context" => context)
+      # We iterate over terms_with_context because we want to look at our own
+      # fields (and not the fields in 'as_json') to case on their class. In the
+      # case where we want to serialize directly, we rely on the field value as
+      # sourced from as_json
+      terms_with_context = self.class.contextualizer.definitions_for_terms(terms).keys
+      json_results = as_json(opts).slice(*terms_with_context)
+      results = {}
+      terms_with_context.each do |term|
+        # Don't use idiomatic case here since Mongoid relations return proxies
+        # that fail the Contextualizable test
+        value = self.send(term)
+        if (value.is_a? Contextualizable)
+          results[term] = self.send(term).as_jsonld
+        elsif (value.is_a? Hash)
+          self.send(term).each do |key, value|
+            results["#{term}:#{key}"] = value
+          end
+        else
+          results[term] = json_results[term]
+        end
+      end
+      results.merge("@context" => context)
     end
 
     def context
@@ -45,7 +64,7 @@ module PragmaticContext
     private
 
     def terms
-      attributes.keys - ['_id', '_type']
+      as_json.keys
     end
   end
 end

@@ -9,7 +9,7 @@ get your models talking JSON-LD.
 I'm glad you asked. [JSON-LD](http://json-ld.org/) is a lightweight JSON format
 for expressing data within a context (also known as 'Linked Data'). Essentially
 what this means is that it lets you say that the thing your data model calls
-a 'last_name' is an embodiment of the abstract idea of a [Family
+a 'last_name' (and what someone else may call 'family_name', or 'surname', or 'apellido') are all embodiments of the same abstract idea of a [Family
 Name](http://xmlns.com/foaf/spec/#term_familyName). JSON-LD is similar in spirit
 (though [vastly different in
 execution](http://manu.sporny.org/2014/json-ld-origins-2/)) to
@@ -116,11 +116,15 @@ it like so:
       contextualize :email, :as => 'http://xmlns.com/foaf/0.1/mbox'
     end
 
-The `Contextualizable` mixin adds a `context` method to the Person object which
-returns a Hash object ready to be serialized into the output object. By wiring
-this up in whatever serializer your application uses, you would end up with
-the following JSON(-LD!) serialization:
+This gives Pragmatic Context everything it needs to be able to create JSON-LD
+representations of your model objects. Getting at these representations is
+discussed in the following section.
 
+### Getting at a JSON-LD representation
+
+The `Contextualizable` mixin adds a `as_jsonld` method that returns a Hash
+representation of your object, ready for serialization. Calling this method on
+the `Person` object described above will produce the following JSON-LD document:
 
     { 
       "@context": {
@@ -132,6 +136,74 @@ the following JSON(-LD!) serialization:
       "last_name": "Trudel",
       "email": "mat@geeky.net"
     }
+
+A couple of things to note about this implementation:
+
+* `as_jsonld` will only serialize fields that have matching `contextualize`
+  statements. This is in keeping with JSON-LD's convention of ignoring fields in
+  a document which do not have a context defined.
+* The produced JSON-LD document embeds the context directly in the document,
+  within the `@context` field.
+* For each field present in your object's `as_json` method *that has a matching
+  `contextualize` statement*, `as_jsonld` will:
+    * If the field is a primitive value (string, number, boolean, nil), its
+      value will be copied directly from the output of `as_json`
+    * If the field is a nested object which includes `Contextualizable`, it is
+      recursively converted to JSON-LD by calling its `as_jsonld` method
+    * If the field is a Hash, its keys are copied over to the parent document's
+      representation, namespaced as per the field's `contextualize` statement.
+      More info on this case is given below.
+
+#### Hash subdocuments and namespacing
+
+As dicsussed above, subdocuments which are also `Contextualizable` are
+automatically recused into and serialized into the output of `as_jsonld`. This
+behaviour should be pretty straightforward to understand and make use of, but
+doesn't clearly cover the case where you may want to refer to concepts in
+separate vocabularies with similar names. In this case, Pragmatic Context
+allows for namespacing based on nested hashes.
+
+*This is an advanced use case and probably only useful if you know that you need
+it. If this doesn't make sense to you, feel free to ignore it.*
+
+Nested hashes which have a corresponding `contextualize` statement are copied into the
+parent document within a namespace. This may seem confusing at first, but is
+done principally to realize use cases such as the following:
+
+    class CreativeWork
+      include Mongoid::Document
+      include PragmaticContext::Contextualizable
+
+      field :dc, type: Hash
+      field :mods, type: Hash
+
+      contextualize :dc, :as => 'http://purl.org/dc/terms/'
+      contextualize :mods, :as => 'http://www.loc.gov/mods/rdf/v1#'
+    end
+
+This allows for both dc['title'] and mods['title'] to be set to independent
+values, and for the resulting document to serialize out as something like:
+
+    {
+      "@context": {
+        "dc": "http://purl.org/dc/terms/",
+        "mods": "http://www.loc.gov/mods/rdf/v1#',
+      },
+      "dc:title": "The value of dc['title']",
+      "mods:title": "The value of mods['title']"
+    }
+
+### Custom serializers
+
+If you want to refer to your JSON-LD context by URI (see Example 4 in the [JSON
+spec](http://www.w3.org/TR/json-ld) for more info), or if you want to use your
+own serializer to customize the JSON-LD representaions you produce, you'll want
+to make use of the `Contextualizable` mixin's `context` method.  `context`
+returns a Hash object ready to be serialized into the `@context` field of the
+output object. By wiring this up in whatever serializer your application uses,
+you can easily extend custom serializations to output
+valid JSON-LD.
+
 
 ### Dynamic documents & more complicated cases
 
@@ -158,20 +230,6 @@ configured like so:
     end
 
 Examples of this are forthcoming.
-
-## Known Issues
-
-* `@type` values aren't yet handled in any real way. This is next up on my queue
-  and should be done very soon.
-* The above example is purposely short on serialization specifics. I'm trying to
-  be accommodating of various serializers and I'm still figuring out the best
-  way to do this. Hopefully we'll be able to make the process of adding
-  a `@context` automatic (or close to it) for common cases. Suggestions for this
-  point are very welcome.
-* Further to the above, there are many (most, even) use cases where the included
-  `@context` field should simply be a URI pointing to a stand-alone
-  represntation of the object's context. I'm not sure how to flexibly realize
-  this yet. Again, suggestions are very welcome.
 
 ## Contributing
 

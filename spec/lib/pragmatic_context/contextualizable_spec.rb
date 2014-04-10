@@ -5,10 +5,10 @@ class Stub
   include ActiveModel::Serializers::JSON
   include PragmaticContext::Contextualizable
 
-  attr_accessor :bacon
+  attr_accessor :bacon, :ham
 
   def attributes
-    { "bacon" => bacon }
+    { "bacon" => bacon, "ham" => ham }
   end
 end
 
@@ -57,12 +57,47 @@ describe PragmaticContext::Contextualizable do
     end
 
     describe 'as_jsonld' do
-      it 'should respond with the underlying as_json result plus the context' do
+      it 'should respond with only contextualized terms plus their context' do
         @contextualizer.stub(:definitions_for_terms) do |terms|
           { 'bacon' => { "@id" => "http://bacon.yum" } }.slice(*terms)
         end
         subject.bacon = 'crispy'
-        subject.as_jsonld.should == subject.as_json.merge("@context" => subject.context)
+        subject.ham = 'honey'
+        subject.as_jsonld.should == { "bacon" => "crispy", "@context" => subject.context }
+      end
+
+      it 'should recurse into Contextualizable subobjects' do
+        @contextualizer.stub(:definitions_for_terms) do |terms|
+          { 'bacon' => { "@id" => "http://bacon.yum" },
+            'ham' => { "@id" => "http://ham.yum" } }.slice(*terms)
+        end
+        subject.bacon = 'crispy'
+        subject.ham = Stub.new
+        subject.ham.bacon = 'nested bacon'
+        subject.ham.ham = 'nested ham'
+        subject.as_jsonld.should == {
+          "@context" => subject.context,
+          "bacon" => "crispy",
+          "ham" => {
+            "@context" => subject.ham.context,
+            "bacon" => "nested bacon",
+            "ham" => "nested ham"
+          }
+        }
+      end
+
+      it 'should compact sub-hashes into namespaced properties on self' do
+        @contextualizer.stub(:definitions_for_terms) do |terms|
+          { 'bacon' => { "@id" => "http://bacon.yum" },
+            'ham' => { "@id" => "http://ham.yum" } }.slice(*terms)
+        end
+        subject.bacon = 'crispy'
+        subject.ham = { 'bacon' => 'nested bacon' }
+        subject.as_jsonld.should == {
+          "@context" => subject.context,
+          "bacon" => "crispy",
+          "ham:bacon" => "nested bacon"
+        }
       end
     end
 
@@ -72,14 +107,16 @@ describe PragmaticContext::Contextualizable do
           { 'bacon' => { "@id" => "http://bacon.yum" } }.slice(*terms)
         end
         subject.bacon = 'crispy'
+        subject.ham = 'honey'
         subject.context['bacon']['@id'].should == 'http://bacon.yum'
+        subject.context['ham'].should == nil
       end
     end
 
     describe 'uncontextualized_terms' do
       it 'should include terms which are not contextualized by the configured Contextualizer' do
         @contextualizer.stub(:definitions_for_terms) { {} }
-        subject.uncontextualized_terms.should == ['bacon']
+        subject.uncontextualized_terms.should == ['bacon', 'ham']
       end
     end
   end
