@@ -86,6 +86,28 @@ describe PragmaticContext::Contextualizable do
         }
       end
 
+      it 'should recurse into Contextualizable subobjects within lists' do
+        @contextualizer.stub(:definitions_for_terms) do |terms|
+          { 'bacon' => { "@id" => "http://bacon.yum" },
+            'ham' => { "@id" => "http://ham.yum" } }.slice(*terms)
+        end
+        subject.bacon = [Stub.new]
+        subject.ham = [Stub.new, 'honey', Stub.new]
+        subject.bacon.first.bacon = 'nested bacon'
+        subject.ham[2].ham = 'nested ham'
+        subject.as_jsonld.should == {
+          "@context" => subject.context,
+          "bacon" => [{ "@context" => subject.bacon.first.context,
+                        "bacon" => "nested bacon"
+                      }],
+          "ham" => [{ "@context" => subject.ham.first.context }, 
+                    'honey', 
+                    { "@context" => subject.ham[2].context,
+                      "ham" => "nested ham"
+                    }]
+        }
+      end
+
       it 'should compact sub-hashes into namespaced properties on self' do
         @contextualizer.stub(:definitions_for_terms) do |terms|
           { 'bacon' => { "@id" => "http://bacon.yum" },
@@ -121,4 +143,3 @@ describe PragmaticContext::Contextualizable do
     end
   end
 end
-
