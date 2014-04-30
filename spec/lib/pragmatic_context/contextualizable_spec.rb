@@ -86,6 +86,20 @@ describe PragmaticContext::Contextualizable do
         }
       end
 
+      it 'should properly render literals within lists' do
+        @contextualizer.stub(:definitions_for_terms) do |terms|
+          { 'bacon' => { "@id" => "http://bacon.yum" },
+            'ham' => { "@id" => "http://ham.yum" } }.slice(*terms)
+        end
+        subject.bacon = ['crispy', 'back', 'peameal']
+        subject.ham = ['honey', 'black forest', 'spiral']
+        subject.as_jsonld.should == {
+          "@context" => subject.context,
+          "bacon" => ['crispy', 'back', 'peameal'],
+          "ham" => ['honey', 'black forest', 'spiral']
+        }
+      end
+
       it 'should recurse into Contextualizable subobjects within lists' do
         @contextualizer.stub(:definitions_for_terms) do |terms|
           { 'bacon' => { "@id" => "http://bacon.yum" },
@@ -93,17 +107,22 @@ describe PragmaticContext::Contextualizable do
         end
         subject.bacon = [Stub.new]
         subject.ham = [Stub.new, 'honey', Stub.new]
-        subject.bacon.first.bacon = 'nested bacon'
-        subject.ham[2].ham = 'nested ham'
+        subject.bacon[0].bacon = 'nested bacon'
+        subject.ham[0].ham = 'nested ham'
+        subject.ham[2].ham = 'nested ham 2'
         subject.as_jsonld.should == {
           "@context" => subject.context,
           "bacon" => [{ "@context" => subject.bacon.first.context,
-                        "bacon" => "nested bacon"
+                        "bacon" => "nested bacon",
+                        "ham" => nil
                       }],
-          "ham" => [{ "@context" => subject.ham.first.context }, 
+          "ham" => [{ "@context" => subject.ham[0].context,
+                      "bacon" => nil,
+                      "ham" => "nested ham"},
                     'honey', 
                     { "@context" => subject.ham[2].context,
-                      "ham" => "nested ham"
+                      "bacon" => nil,
+                      "ham" => "nested ham 2"
                     }]
         }
       end

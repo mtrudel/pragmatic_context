@@ -41,6 +41,14 @@ module PragmaticContext
         value = self.send(term)
         if (value.is_a? Contextualizable)
           results[term] = self.send(term).as_jsonld
+        elsif (value.is_a? Array)
+          results[term] = self.send(term).each_with_index.map do |element, idx|
+            if (element.is_a? Contextualizable)
+              element.as_jsonld
+            else
+              json_results[term][idx]
+            end
+          end
         elsif (value.is_a? Hash)
           self.send(term).each do |key, value|
             results["#{term}:#{key}"] = value
