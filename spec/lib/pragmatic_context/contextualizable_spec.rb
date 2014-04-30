@@ -94,7 +94,7 @@ describe PragmaticContext::Contextualizable do
         subject.bacon = ['crispy', 'back', 'peameal']
         subject.ham = ['honey', 'black forest', 'spiral']
         subject.as_jsonld.should == {
-          "@context" => subject.context,
+          "@context" => subject.jsonld_context,
           "bacon" => ['crispy', 'back', 'peameal'],
           "ham" => ['honey', 'black forest', 'spiral']
         }
@@ -111,16 +111,16 @@ describe PragmaticContext::Contextualizable do
         subject.ham[0].ham = 'nested ham'
         subject.ham[2].ham = 'nested ham 2'
         subject.as_jsonld.should == {
-          "@context" => subject.context,
-          "bacon" => [{ "@context" => subject.bacon.first.context,
+          "@context" => subject.jsonld_context,
+          "bacon" => [{ "@context" => subject.bacon[0].jsonld_context,
                         "bacon" => "nested bacon",
                         "ham" => nil
                       }],
-          "ham" => [{ "@context" => subject.ham[0].context,
+          "ham" => [{ "@context" => subject.ham[0].jsonld_context,
                       "bacon" => nil,
                       "ham" => "nested ham"},
                     'honey', 
-                    { "@context" => subject.ham[2].context,
+                    { "@context" => subject.ham[2].jsonld_context,
                       "bacon" => nil,
                       "ham" => "nested ham 2"
                     }]
