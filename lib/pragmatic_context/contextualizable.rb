@@ -49,10 +49,10 @@ module PragmaticContext
           results[term] = json_results[term]
         end
       end
-      results.merge("@context" => context)
+      results.merge("@context" => jsonld_context)
     end
 
-    def context
+    def jsonld_context
       self.class.contextualizer.definitions_for_terms(terms)
     end
 
