@@ -198,7 +198,7 @@ values, and for the resulting document to serialize out as something like:
 If you want to refer to your JSON-LD context by URI (see Example 4 in the [JSON
 spec](http://www.w3.org/TR/json-ld) for more info), or if you want to use your
 own serializer to customize the JSON-LD representaions you produce, you'll want
-to make use of the `Contextualizable` mixin's `context` method.  `context`
+to make use of the `Contextualizable` mixin's `jsonld_context` method.  `jsonld_context`
 returns a Hash object ready to be serialized into the `@context` field of the
 output object. By wiring this up in whatever serializer your application uses,
 you can easily extend custom serializations to output

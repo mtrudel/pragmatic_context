@@ -63,7 +63,7 @@ describe PragmaticContext::Contextualizable do
         end
         subject.bacon = 'crispy'
         subject.ham = 'honey'
-        subject.as_jsonld.should == { "bacon" => "crispy", "@context" => subject.context }
+        subject.as_jsonld.should == { "bacon" => "crispy", "@context" => subject.jsonld_context }
       end
 
       it 'should recurse into Contextualizable subobjects' do
@@ -76,10 +76,10 @@ describe PragmaticContext::Contextualizable do
         subject.ham.bacon = 'nested bacon'
         subject.ham.ham = 'nested ham'
         subject.as_jsonld.should == {
-          "@context" => subject.context,
+          "@context" => subject.jsonld_context,
           "bacon" => "crispy",
           "ham" => {
-            "@context" => subject.ham.context,
+            "@context" => subject.ham.jsonld_context,
             "bacon" => "nested bacon",
             "ham" => "nested ham"
           }
@@ -135,7 +135,7 @@ describe PragmaticContext::Contextualizable do
         subject.bacon = 'crispy'
         subject.ham = { 'bacon' => 'nested bacon' }
         subject.as_jsonld.should == {
-          "@context" => subject.context,
+          "@context" => subject.jsonld_context,
           "bacon" => "crispy",
           "ham:bacon" => "nested bacon"
         }
@@ -149,8 +149,8 @@ describe PragmaticContext::Contextualizable do
         end
         subject.bacon = 'crispy'
         subject.ham = 'honey'
-        subject.context['bacon']['@id'].should == 'http://bacon.yum'
-        subject.context['ham'].should == nil
+        subject.jsonld_context['bacon']['@id'].should == 'http://bacon.yum'
+        subject.jsonld_context['ham'].should == nil
       end
     end
 
