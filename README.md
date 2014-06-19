@@ -1,6 +1,6 @@
 # PragmaticContext
 
-PragmaticContext lets declaratively contextualize your
+PragmaticContext allows you to declaratively contextualize your
 ActiveModel objects in terms of Linked Data concepts, giving you an easy way to
 get your models talking JSON-LD.
 
