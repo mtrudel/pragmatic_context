@@ -8,6 +8,7 @@ module PragmaticContext
 
     module ClassMethods
       attr_accessor :contextualizer
+      attr_accessor :contextualized_type
 
       def contextualize_with(klass)
         self.contextualizer = klass.new
@@ -16,6 +17,10 @@ module PragmaticContext
       def contextualize(field, params)
         setup_default_contextualizer
         self.contextualizer.add_term(field, params)
+      end
+
+      def contextualize_as_type(type)
+        self.contextualized_type = type
       end
 
       private
@@ -35,6 +40,7 @@ module PragmaticContext
       terms_with_context = self.class.contextualizer.definitions_for_terms(terms).keys
       json_results = as_json(opts).slice(*terms_with_context)
       results = {}
+      results['@type'] = self.class.contextualized_type if self.class.contextualized_type
       terms_with_context.each do |term|
         # Don't use idiomatic case here since Mongoid relations return proxies
         # that fail the Contextualizable test

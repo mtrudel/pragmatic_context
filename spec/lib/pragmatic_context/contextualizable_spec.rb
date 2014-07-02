@@ -44,6 +44,13 @@ describe PragmaticContext::Contextualizable do
         subject.contextualize :bacon, :as => 'http://bacon.yum'
       end
     end
+
+    describe 'contextualize_as_type' do
+      it 'should set the type on the class' do
+        subject.contextualize_as_type 'bacon'
+        subject.contextualized_type.should eq 'bacon'
+      end
+    end
   end
 
   describe 'included instance methods' do
@@ -53,10 +60,17 @@ describe PragmaticContext::Contextualizable do
       @contextualizer = double('contextualizer')
       contextualizer_class = double('contextualizer class')
       contextualizer_class.stub(:new) { @contextualizer }
+      subject.class.contextualize_as_type nil
       subject.class.contextualize_with contextualizer_class
     end
 
     describe 'as_jsonld' do
+      it 'should respond with @type if it has been set' do
+        @contextualizer.stub(:definitions_for_terms) { {} }
+        subject.class.contextualize_as_type 'Food'
+        subject.as_jsonld.should == { "@type" => "Food", "@context" => {} }
+      end
+
       it 'should respond with only contextualized terms plus their context' do
         @contextualizer.stub(:definitions_for_terms) do |terms|
           { 'bacon' => { "@id" => "http://bacon.yum" } }.slice(*terms)

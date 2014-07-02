@@ -111,9 +111,11 @@ it like so:
       field :last_name
       field :email
 
-      contextualize :first_name, :as => 'http://xmlns.com/foaf/0.1/givenName'
-      contextualize :last_name, :as => 'http://xmlns.com/foaf/0.1/familyName'
-      contextualize :email, :as => 'http://xmlns.com/foaf/0.1/mbox'
+      contextualize_as_type 'https://schema.org/Person'
+
+      contextualize :first_name, :as => 'http://schema.org/givenName'
+      contextualize :last_name, :as => 'http://schema.org/familyName'
+      contextualize :email, :as => 'http://schema.org/email'
     end
 
 This gives Pragmatic Context everything it needs to be able to create JSON-LD
@@ -128,10 +130,11 @@ the `Person` object described above will produce the following JSON-LD document:
 
     { 
       "@context": {
-        "first_name": { "@id", "http://xmlns.com/foaf/0.1/givenName" },
-        "last_name": { "@id", "http://xmlns.com/foaf/0.1/familyName" },
-        "email": { "@id", "http://xmlns.com/foaf/0.1/mbox" },
+        "first_name": { "@id", "http://schema.org/givenName" },
+        "last_name": { "@id", "http://schema.org/familyName" },
+        "email": { "@id", "http://schema.org/email" },
       },
+      "@type": "http://schema.org/Person",
       "first_name": "Mat",
       "last_name": "Trudel",
       "email": "mat@geeky.net"
@@ -144,6 +147,9 @@ A couple of things to note about this implementation:
   a document which do not have a context defined.
 * The produced JSON-LD document embeds the context directly in the document,
   within the `@context` field.
+* If a type is given for the contextualized class (via the
+  `contextualize_as_type` statement), it will have a matching `@type` field in
+  its JSON-LD representation.
 * For each field present in your object's `as_json` method *that has a matching
   `contextualize` statement*, `as_jsonld` will:
     * If the field is a primitive value (string, number, boolean, nil), its
