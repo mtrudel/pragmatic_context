@@ -10,7 +10,7 @@ I'm glad you asked. [JSON-LD](http://json-ld.org/) is a lightweight JSON format
 for expressing data within a context (also known as 'Linked Data'). Essentially
 what this means is that it lets you say that the thing your data model calls
 a 'last_name' (and what someone else may call 'family_name', or 'surname', or 'apellido') are all embodiments of the same abstract idea of a [Family
-Name](http://xmlns.com/foaf/spec/#term_familyName). JSON-LD is similar in spirit
+Name](http://schema.org/familyName). JSON-LD is similar in spirit
 (though [vastly different in
 execution](http://manu.sporny.org/2014/json-ld-origins-2/)) to
 [RDF](http://en.wikipedia.org/wiki/Resource_Description_Framework). It allows
@@ -51,7 +51,7 @@ identify a field as representing the concept of a person's first
 name, whether the field was named 'first_name', 'FirstName', 'given_name', or
 even 'field1234'. By allowing you to contextualize your data, JSON-LD lets you
 essentially say "when I say 'last_name', I really mean
-`http://xmlns.com/foaf/0.1/familyName`". In so doing, it becomes possible to
+`http://schema.org/familyName`". In so doing, it becomes possible to
 associate the last name fields of any JSON-LD API, regardless of what they name
 their fields.
 
