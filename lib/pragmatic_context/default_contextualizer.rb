@@ -15,10 +15,14 @@ module PragmaticContext
     private
 
     def definition_from_params(params)
-      result = {}
-      result['@id'] = params[:as] if params[:as]
-      result['@type'] = params[:type] if params[:type]
-      result
+      if params.keys == ['as']
+        params[:as]
+      else
+        result = {}
+        result['@id'] = params[:as] if params[:as]
+        result['@type'] = params[:type] if params[:type]
+        result
+      end
     end
   end
 end
