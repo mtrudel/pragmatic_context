@@ -43,12 +43,23 @@ describe PragmaticContext::Contextualizable do
 
         subject.contextualize :bacon, :as => 'http://bacon.yum'
       end
+
+      it 'should coerce the param values to string' do
+        contextualizer = double('contextualizer')
+        contextualizer.should_receive(:add_term).with(:bacon, { :as => 'http://bacon.yum' })
+        PragmaticContext::DefaultContextualizer.stub(:new) { contextualizer }
+        subject.contextualize :bacon, :as => double(to_s: 'http://bacon.yum')
+      end
     end
 
     describe 'contextualize_as_type' do
       it 'should set the type on the class' do
         subject.contextualize_as_type 'bacon'
         subject.contextualized_type.should eq 'bacon'
+      end
+      it 'should coerce the type to string' do
+        subject.contextualize_as_type double(to_s: "http://schema.org/Person")
+        subject.contextualized_type.should eq "http://schema.org/Person"
       end
     end
   end
