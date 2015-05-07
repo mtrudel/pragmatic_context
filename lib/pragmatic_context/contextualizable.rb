@@ -16,11 +16,12 @@ module PragmaticContext
 
       def contextualize(field, params)
         setup_default_contextualizer
+        params.each { |k, v| params[k] = v.to_s }
         self.contextualizer.add_term(field, params)
       end
 
       def contextualize_as_type(type)
-        self.contextualized_type = type
+        self.contextualized_type = type.nil? ? type : type.to_s
       end
 
       private
