@@ -8,8 +8,10 @@ module PragmaticContext
       @properties[term] = ActiveSupport::HashWithIndifferentAccess.new params
     end
 
-    def definitions_for_terms(terms)
-      Hash[@properties.slice(*terms).map { |term, params| [term, definition_from_params(params)] }]
+    def definitions_for_terms(terms = nil)
+      definitions = Hash[@properties.map { |term, params| [term, definition_from_params(params)] }]
+      definitions.slice(terms) if terms
+      definitions
     end
 
     private

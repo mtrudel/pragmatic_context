@@ -10,5 +10,14 @@ describe PragmaticContext::DefaultContextualizer do
         "ham" => "http://ham.com"
       })
     end
+
+    it 'should return all terms when asked' do
+      subject.add_term('bacon', :as => 'http://bacon.com', :type => 'number')
+      subject.add_term('ham', :as => 'http://ham.com')
+      subject.definitions_for_terms.should eq({
+        "bacon" => { "@id" => "http://bacon.com", "@type" => "number" },
+        "ham" => "http://ham.com"
+      })
+    end
   end
 end
