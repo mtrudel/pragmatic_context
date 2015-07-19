@@ -112,6 +112,7 @@ it like so:
       field :email
 
       contextualize_as_type 'https://schema.org/Person'
+      contextualize_with_id { |person| Rails.application.routes.url_helpers.person_url(person) }
 
       contextualize :first_name, :as => 'http://schema.org/givenName'
       contextualize :last_name, :as => 'http://schema.org/familyName'
@@ -135,6 +136,7 @@ the `Person` object described above will produce the following JSON-LD document:
         "email": { "@id", "http://schema.org/email" },
       },
       "@type": "http://schema.org/Person",
+      "@id": "http://example.com/people/123",
       "first_name": "Mat",
       "last_name": "Trudel",
       "email": "mat@geeky.net"
@@ -149,6 +151,9 @@ A couple of things to note about this implementation:
   within the `@context` field.
 * If a type is given for the contextualized class (via the
   `contextualize_as_type` statement), it will have a matching `@type` field in
+  its JSON-LD representation.
+* If an ID factory is given for the contextualized class (via the
+  `contextualize_with_id` statement), it will have a matching `@id` field in
   its JSON-LD representation.
 * For each field present in your object's `as_json` method *that has a matching
   `contextualize` statement*, `as_jsonld` will:
