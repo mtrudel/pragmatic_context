@@ -62,6 +62,18 @@ describe PragmaticContext::Contextualizable do
         subject.contextualized_type.should eq "http://schema.org/Person"
       end
     end
+
+    describe 'contextualize_with_id' do
+      it 'should set the id_factory on the class' do
+        block =->(obj) {}
+        subject.contextualize_with_id &block
+        subject.context_id_factory.should eq block
+      end
+
+      after :each do
+        subject.context_id_factory = nil
+      end
+    end
   end
 
   describe 'included instance methods' do
@@ -76,6 +88,25 @@ describe PragmaticContext::Contextualizable do
     end
 
     describe 'as_jsonld' do
+      describe 'contextualize_with_id' do
+        it 'should call the block with the object instance as its only argument' do
+          @contextualizer.stub(:definitions_for_terms) { {} }
+          called = false
+          subject.class.contextualize_with_id do |obj| 
+            obj.should eq subject
+            called = true
+          end
+          subject.as_jsonld
+          called.should eq true
+        end
+
+        it 'should respond with @id if a factory block has been set' do
+          @contextualizer.stub(:definitions_for_terms) { {} }
+          subject.class.contextualize_with_id { |obj| 'http://bacon' }
+          subject.as_jsonld.should == { "@id" => "http://bacon", "@context" => {} }
+        end
+      end
+
       it 'should respond with @type if it has been set' do
         @contextualizer.stub(:definitions_for_terms) { {} }
         subject.class.contextualize_as_type 'Food'

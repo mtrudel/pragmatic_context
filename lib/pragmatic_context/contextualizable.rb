@@ -9,6 +9,7 @@ module PragmaticContext
     module ClassMethods
       attr_accessor :contextualizer
       attr_accessor :contextualized_type
+      attr_accessor :context_id_factory
 
       def contextualize_with(klass)
         self.contextualizer = klass.new
@@ -22,6 +23,11 @@ module PragmaticContext
 
       def contextualize_as_type(type)
         self.contextualized_type = type.nil? ? type : type.to_s
+      end
+
+      def contextualize_with_id(&block)
+        raise "contextualize_with_id must be called with a block" unless block_given?
+        self.context_id_factory = block
       end
 
       private
@@ -42,6 +48,7 @@ module PragmaticContext
       terms_with_context = context.keys
       json_results = as_json(opts).slice(*terms_with_context)
       results = {}
+      results['@id'] = self.class.context_id_factory.call(self) if self.class.context_id_factory
       results['@type'] = self.class.contextualized_type if self.class.contextualized_type
       terms_with_context.each do |term|
         # Don't use idiomatic case here since Mongoid relations return proxies
