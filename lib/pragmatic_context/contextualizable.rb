@@ -38,7 +38,8 @@ module PragmaticContext
       # fields (and not the fields in 'as_json') to case on their class. In the
       # case where we want to serialize directly, we rely on the field value as
       # sourced from as_json
-      terms_with_context = self.class.contextualizer.definitions_for_terms(terms).keys
+      context = jsonld_context
+      terms_with_context = context.keys
       json_results = as_json(opts).slice(*terms_with_context)
       results = {}
       results['@type'] = self.class.contextualized_type if self.class.contextualized_type
@@ -64,7 +65,7 @@ module PragmaticContext
           results[term] = json_results[term]
         end
       end
-      results.merge("@context" => jsonld_context)
+      results.merge("@context" => context)
     end
 
     def jsonld_context
